@@ -81,8 +81,18 @@ async function buildAssets() {
 
 const htmlOpts = { collapseWhitespace: true, conservativeCollapse: true, removeComments: true, minifyCSS: true, minifyJS: true, keepClosingSlash: false, removeAttributeQuotes: false };
 
+// Sub-path hosting (e.g. GitHub Pages at https://user.github.io/repo): every
+// root-relative URL in the HTML gets the pathname of SITE_URL prepended.
+const base = new URL(site.url).pathname.replace(/\/$/, '');
+function rebase(html) {
+  if (!base) return html;
+  return html
+    .replace(/((?:href|src|action|content)=")\/(?!\/)/g, `$1${base}/`)
+    .replace(/(srcset=")([^"]*)/g, (_, a, list) => a + list.replace(/(^|,\s*)\/(?!\/)/g, `$1${base}/`));
+}
+
 async function writePage(urlPath, html, logoManifest) {
-  const withLogo = html.replace('width="160" height="157"', `width="${logoManifest.width}" height="${logoManifest.height}"`);
+  const withLogo = rebase(html).replace('width="160" height="157"', `width="${logoManifest.width}" height="${logoManifest.height}"`);
   const dir = path.join(dist, urlPath);
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, 'index.html'), await minifyHtml(withLogo, htmlOpts));
@@ -109,7 +119,7 @@ function collectPages(manifest) {
 function rootRedirect() {
   const def = `/${site.defaultLang}/`;
   const langs = JSON.stringify(site.langs);
-  return `<!doctype html><html lang="${site.defaultLang}"><head><meta charset="utf-8"><title>Verdi Colline | B&B Serra de’ Conti</title><meta name="robots" content="noindex"><link rel="canonical" href="${abs(def)}"><meta http-equiv="refresh" content="0; url=${def}"><script>(function(){var l=${langs},p=(navigator.language||'').slice(0,2).toLowerCase();location.replace('/'+(l.indexOf(p)>-1?p:'${site.defaultLang}')+'/'+location.search+location.hash)})()</script></head><body><a href="${def}">Verdi Colline</a></body></html>`;
+  return `<!doctype html><html lang="${site.defaultLang}"><head><meta charset="utf-8"><title>Verdi Colline | B&B Serra de’ Conti</title><meta name="robots" content="noindex"><link rel="canonical" href="${abs(def)}"><meta http-equiv="refresh" content="0; url=${base}${def}"><script>(function(){var l=${langs},p=(navigator.language||'').slice(0,2).toLowerCase();location.replace('${base}/'+(l.indexOf(p)>-1?p:'${site.defaultLang}')+'/'+location.search+location.hash)})()</script></head><body><a href="${base}${def}">Verdi Colline</a></body></html>`;
 }
 
 function sitemap(pages) {
@@ -143,6 +153,7 @@ for (const p of pages) await writePage(p.url, p.html, manifest.logo);
 await writeFile(path.join(dist, 'index.html'), rootRedirect());
 await writeFile(path.join(dist, 'sitemap.xml'), sitemap(pages));
 await writeFile(path.join(dist, 'robots.txt'), robots());
+await writeFile(path.join(dist, '.nojekyll'), '');
 if (existsSync(path.join(root, 'public'))) await cp(path.join(root, 'public'), dist, { recursive: true });
 
 console.log(`Built ${pages.length} pages → ${path.relative(root, dist)}/ (site url: ${site.url})`);
