@@ -8,7 +8,7 @@ npm run build   # → dist/  (set SITE_URL=https://your-domain to change canonic
 npm run dev     # build + serve dist on http://localhost:5173
 ```
 
-Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, plain web server).
+Deploy `dist/` to any static host. Pushes to `main` are deployed automatically to GitHub Pages by `.github/workflows/pages.yml` (repo Settings → Pages → Source: **GitHub Actions**). Set the repository variable `SITE_URL` when moving to a custom domain.
 
 ## Editing content
 
