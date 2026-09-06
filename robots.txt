@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nourabm33.github.io/verdi-colline/sitemap.xml
+Sitemap: https://verdicolline.com/sitemap.xml
