@@ -5,7 +5,7 @@ export const site = {
   name: 'Verdi Colline',
   tagline: { it: 'B&B · Serra de\u2019 Conti', en: 'B&B · Serra de\u2019 Conti' },
   // Public URL used for canonical, hreflang, sitemap and JSON-LD.
-  url: (process.env.SITE_URL || 'https://www.verdicolline.it').replace(/\/$/, ''),
+  url: (process.env.SITE_URL || 'https://verdicolline.com').replace(/\/$/, ''),
   defaultLang: 'it',
   langs: ['it', 'en'],
   phone: '+39 329 266 1135',
