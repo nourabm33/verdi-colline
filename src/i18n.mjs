@@ -71,6 +71,7 @@ export const t = {
       close: 'Chiudi',
       prev: 'Immagine precedente',
       next: 'Immagine successiva',
+      slide: 'Foto',
     },
     contact: {
       kicker: 'Prenota',
@@ -188,6 +189,7 @@ export const t = {
       close: 'Close',
       prev: 'Previous image',
       next: 'Next image',
+      slide: 'Photo',
     },
     contact: {
       kicker: 'Book',

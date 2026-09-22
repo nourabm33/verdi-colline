@@ -165,6 +165,18 @@ body.menu-open { overflow: hidden; }
 .card-media { display: block; }
 .card-media img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform .6s ease; }
 .card:hover .card-media img { transform: scale(1.03); }
+
+/* Slideshow (apartment photos) */
+.slideshow { position: relative; overflow: hidden; }
+.slideshow .slide { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
+.slideshow .slide.is-active { position: relative; opacity: 1; }
+.slideshow .slide img { display: block; }
+.slide-dots { position: absolute; left: 0; right: 0; bottom: .7rem; display: flex; justify-content: center; gap: .45rem; z-index: 1; }
+.slide-dots [data-slide] { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 0 1px rgba(0,0,0,.15); cursor: pointer; transition: background .3s, transform .3s; }
+.slide-dots [aria-current="true"] { background: #fff; transform: scale(1.25); }
+.card-media .slide-dots { pointer-events: none; }
+.media-wide .slideshow { border-radius: var(--radius); }
+.media-wide .slide-dots [data-slide] { width: .7rem; height: .7rem; }
 .card-body { padding: 1.4rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .6rem; flex: 1; }
 .card-title { margin: 0; }
 .card-title a { color: inherit; text-decoration: none; }
