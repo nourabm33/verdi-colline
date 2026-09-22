@@ -35,12 +35,11 @@ export const apartments = [
     // Per-apartment booking channels. null = button hidden.
     bookingUrl: null,
     airbnbUrl: null,
-    // Image key from src/data/gallery.mjs (property photos until interior photos are provided).
-    image: 'panorama',
-    imageAlt: {
-      it: 'Vista sulle colline marchigiane dal B&B Verdi Colline, Serra de\u2019 Conti',
-      en: 'View over the Marche hills from Verdi Colline B&B, Serra de\u2019 Conti',
-    },
+    // Image keys from src/data/gallery.mjs. With 2+ keys the card and the
+    // detail page show an auto-advancing slideshow; `image` is the cover / share image.
+    image: 'sun-living',
+    images: ['sun-living', 'sun-cucina', 'sun-vista', 'sun-scala', 'sun-ingresso'],
+    imageAlt: null, // null = use the alt text from gallery.mjs
   },
   {
     slug: 'moon',
@@ -70,7 +69,9 @@ export const apartments = [
     wifi: true,
     bookingUrl: null,
     airbnbUrl: null,
+    // Property photo until interior photos are provided.
     image: 'giardino',
+    images: ['giardino'],
     imageAlt: {
       it: 'Giardino del B&B Verdi Colline a Serra de\u2019 Conti',
       en: 'Garden of Verdi Colline B&B in Serra de\u2019 Conti',

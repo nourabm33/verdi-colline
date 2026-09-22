@@ -44,9 +44,49 @@ export const images = {
       en: 'Praying mantis among the leaves in the Verdi Colline garden',
     },
   },
+  'sun-living': {
+    file: 'sun-living.jpg',
+    trimBottom: 130,
+    alt: {
+      it: 'Zona living dell\u2019Appartamento Sun con divano, tavolo da pranzo e cucina',
+      en: 'Living area of the Sun Apartment with sofa, dining table and kitchen',
+    },
+  },
+  'sun-cucina': {
+    file: 'sun-cucina.jpg',
+    trimBottom: 130,
+    alt: {
+      it: 'Cucina dell\u2019Appartamento Sun con vista sulla zona living',
+      en: 'Kitchen of the Sun Apartment looking onto the living area',
+    },
+  },
+  'sun-vista': {
+    file: 'sun-vista.jpg',
+    trimBottom: 0,
+    alt: {
+      it: 'Vista sulle colline marchigiane dal balcone dell\u2019Appartamento Sun',
+      en: 'View over the Marche hills from the balcony of the Sun Apartment',
+    },
+  },
+  'sun-scala': {
+    file: 'sun-scala.jpg',
+    trimBottom: 130,
+    alt: {
+      it: 'Scala interna dell\u2019Appartamento Sun con opere d\u2019arte alle pareti',
+      en: 'Interior staircase of the Sun Apartment with artwork on the walls',
+    },
+  },
+  'sun-ingresso': {
+    file: 'sun-ingresso.jpg',
+    trimBottom: 130,
+    alt: {
+      it: 'Ingresso dell\u2019Appartamento Sun con porta scorrevole e parquet',
+      en: 'Entrance of the Sun Apartment with sliding door and wooden floor',
+    },
+  },
 };
 
 // Order of the photos in the gallery page. Add keys here to show them.
-export const galleryOrder = ['panorama', 'ingresso', 'giardino', 'ulivo', 'mantide'];
+export const galleryOrder = ['panorama', 'ingresso', 'sun-living', 'giardino', 'sun-cucina', 'sun-vista', 'ulivo', 'sun-scala', 'mantide', 'sun-ingresso'];
 
 export const heroImage = 'panorama';

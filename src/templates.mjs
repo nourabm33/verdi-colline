@@ -46,6 +46,21 @@ export function picture(manifest, key, lang, opts = {}) {
   return `<picture><source type="image/webp" srcset="${srcset('webp')}" sizes="${sizes}"><img ${attrs}></picture>`;
 }
 
+// Auto-advancing slideshow (src/js/main.js). Falls back to a single picture
+// when the apartment has only one photo.
+function slideshow(manifest, lang, apt, opts = {}) {
+  const keys = apt.images?.length ? apt.images : [apt.image];
+  const altFor = (k, i) => (i === 0 && apt.imageAlt ? apt.imageAlt[lang] : images[k].alt[lang]);
+  if (keys.length < 2) return picture(manifest, keys[0], lang, { ...opts, alt: altFor(keys[0], 0) });
+  const g = t[lang].gallery;
+  const slides = keys.map((k, i) => `<div class="slide${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>${picture(manifest, k, lang, { ...opts, alt: altFor(k, i), loading: i === 0 ? opts.loading : 'lazy', fetchpriority: i === 0 ? opts.fetchpriority : undefined })}</div>`).join('');
+  // Inside a card the whole media is a link, so dots are decorative spans (no nested interactive elements).
+  const dots = keys.map((_, i) => opts.inLink
+    ? `<span data-slide="${i}"${i === 0 ? ' aria-current="true"' : ''}></span>`
+    : `<button type="button" data-slide="${i}"${i === 0 ? ' aria-current="true"' : ''} aria-label="${g.slide} ${i + 1}"></button>`).join('');
+  return `<div class="slideshow" data-slideshow role="region" aria-roledescription="carousel" aria-label="${esc(apt.name[lang])}">${slides}<div class="slide-dots">${dots}</div></div>`;
+}
+
 /* ---------- shared blocks ---------- */
 
 const ctaPhone = (lang, cls = 'btn btn-outline') =>
@@ -74,7 +89,7 @@ function apartmentCard(manifest, lang, apt, headingTag = 'h3') {
     ? `<p class="price"><strong>€${apt.price}</strong> <span>${s.perNight}</span></p>`
     : '';
   return `<article class="card apt-card">
-  <a class="card-media" href="${href}" tabindex="-1" aria-hidden="true">${picture(manifest, apt.image, lang, { alt: apt.imageAlt[lang], sizes: '(min-width: 900px) 45vw, 100vw' })}</a>
+  <a class="card-media" href="${href}" tabindex="-1" aria-hidden="true">${slideshow(manifest, lang, apt, { sizes: '(min-width: 900px) 45vw, 100vw', inLink: true })}</a>
   <div class="card-body">
     <${headingTag} class="card-title"><a href="${href}">${apt.name[lang]}</a></${headingTag}>
     <p>${apt.short[lang]}</p>
@@ -314,7 +329,7 @@ const apartmentLd = (lang, a) => ({
   name: a.name[lang],
   description: a.description[lang],
   url: abs(path(lang, 'apartments', a.slug)),
-  image: abs(`/images/${a.image}-1600.jpg`),
+  image: (a.images?.length ? a.images : [a.image]).map((k) => abs(`/images/${k}-1200.jpg`)),
   occupancy: { '@type': 'QuantitativeValue', maxValue: a.occupancy },
   numberOfBedrooms: a.bedrooms,
   petsAllowed: a.petsAllowed,
@@ -468,7 +483,7 @@ export function apartmentPage(manifest, lang, apt) {
   <h1>${apt.name[lang]}</h1>
   <p class="lead">${apt.short[lang]}</p>
 </section>
-<section class="wrap"><div class="media-wide">${picture(manifest, apt.image, lang, { alt: apt.imageAlt[lang], loading: 'eager', fetchpriority: 'high', sizes: '(min-width: 1200px) 1100px, 100vw' })}</div></section>
+<section class="wrap"><div class="media-wide">${slideshow(manifest, lang, apt, { loading: 'eager', fetchpriority: 'high', sizes: '(min-width: 1200px) 1100px, 100vw' })}</div></section>
 <section class="section wrap apt-detail">
   <div class="apt-main">
     <p>${apt.description[lang]}</p>

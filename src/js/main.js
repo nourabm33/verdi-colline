@@ -25,6 +25,52 @@
     });
   }
 
+  /* Slideshows: auto-advance, pause on hover/focus and when off-screen */
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-slideshow]'), function (box) {
+    var slides = box.querySelectorAll('.slide');
+    var dots = box.querySelectorAll('[data-slide]');
+    if (slides.length < 2) return;
+    var i = 0, timer = null, paused = false, visible = true;
+    var go = function (n) {
+      slides[i].classList.remove('is-active');
+      slides[i].setAttribute('aria-hidden', 'true');
+      dots[i].removeAttribute('aria-current');
+      i = (n + slides.length) % slides.length;
+      slides[i].classList.add('is-active');
+      slides[i].removeAttribute('aria-hidden');
+      dots[i].setAttribute('aria-current', 'true');
+    };
+    var stop = function () { clearInterval(timer); timer = null; };
+    var start = function () {
+      if (reduceMotion || paused || !visible || timer) return;
+      timer = setInterval(function () { go(i + 1); }, 3500);
+    };
+    Array.prototype.forEach.call(dots, function (d, n) {
+      d.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(n); stop(); start(); });
+    });
+    box.addEventListener('mouseenter', function () { paused = true; stop(); });
+    box.addEventListener('mouseleave', function () { paused = false; start(); });
+    box.addEventListener('focusin', function () { paused = true; stop(); });
+    box.addEventListener('focusout', function () { paused = false; start(); });
+    var sx = null;
+    box.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener('touchend', function (e) {
+      if (sx === null) return;
+      var dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 40) { go(dx < 0 ? i + 1 : i - 1); stop(); start(); }
+      sx = null;
+    });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible) start(); else stop();
+      }).observe(box);
+    }
+    document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
+    start();
+  });
+
   /* Lightbox */
   var lb = document.getElementById('lightbox');
   var items = Array.prototype.slice.call(document.querySelectorAll('[data-lightbox] .gallery-item'));
