@@ -168,9 +168,11 @@ body.menu-open { overflow: hidden; }
 
 /* Slideshow (apartment photos) */
 .slideshow { position: relative; overflow: hidden; }
-.slideshow .slide { position: absolute; inset: 0; opacity: 0; transition: opacity .9s ease; }
-.slideshow .slide.is-active { position: relative; opacity: 1; }
+.slide-track { display: flex; width: 100%; transition: transform .8s cubic-bezier(.45,0,.2,1); will-change: transform; }
+.slide-track.no-anim { transition: none; }
+.slideshow .slide { flex: 0 0 100%; min-width: 100%; }
 .slideshow .slide img { display: block; }
+.card:hover .card-media .slideshow img { transform: none; }
 .slide-dots { position: absolute; left: 0; right: 0; bottom: .7rem; display: flex; justify-content: center; gap: .45rem; z-index: 1; }
 .slide-dots [data-slide] { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.55); box-shadow: 0 0 0 1px rgba(0,0,0,.15); cursor: pointer; transition: background .3s, transform .3s; }
 .slide-dots [aria-current="true"] { background: #fff; transform: scale(1.25); }

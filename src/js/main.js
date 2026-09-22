@@ -25,49 +25,67 @@
     });
   }
 
-  /* Slideshows: auto-advance, pause on hover/focus and when off-screen */
-  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Slideshows: continuous sliding carousel, runs on its own (pauses only when the tab is hidden) */
   Array.prototype.forEach.call(document.querySelectorAll('[data-slideshow]'), function (box) {
-    var slides = box.querySelectorAll('.slide');
+    var track = box.querySelector('.slide-track');
+    var slides = track ? track.querySelectorAll('.slide') : [];
     var dots = box.querySelectorAll('[data-slide]');
-    if (slides.length < 2) return;
-    var i = 0, timer = null, paused = false, visible = true;
-    var go = function (n) {
-      slides[i].classList.remove('is-active');
-      slides[i].setAttribute('aria-hidden', 'true');
-      dots[i].removeAttribute('aria-current');
-      i = (n + slides.length) % slides.length;
-      slides[i].classList.add('is-active');
-      slides[i].removeAttribute('aria-hidden');
-      dots[i].setAttribute('aria-current', 'true');
+    var n = slides.length;
+    if (n < 2) return;
+
+    // Clone the first slide at the end so the last -> first step slides forward seamlessly.
+    var clone = slides[0].cloneNode(true);
+    clone.setAttribute('aria-hidden', 'true');
+    Array.prototype.forEach.call(clone.querySelectorAll('img'), function (im) { im.loading = 'lazy'; im.removeAttribute('fetchpriority'); });
+    track.appendChild(clone);
+
+    var i = 0, timer = null;
+    var render = function (idx, animate) {
+      track.classList.toggle('no-anim', !animate);
+      track.style.transform = 'translateX(' + (-idx * 100) + '%)';
     };
+    var markDot = function (idx) {
+      Array.prototype.forEach.call(dots, function (d, k) {
+        if (k === idx % n) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
+      Array.prototype.forEach.call(slides, function (s, k) {
+        if (k === idx % n) s.removeAttribute('aria-hidden'); else s.setAttribute('aria-hidden', 'true');
+      });
+    };
+    var go = function (idx) {
+      if (idx > n) { render(0, false); void track.offsetWidth; idx -= n; }
+      i = idx;
+      render(i, true);
+      markDot(i);
+    };
+    track.addEventListener('transitionend', function (e) {
+      if (e.target !== track || i !== n) return;
+      i = 0;
+      render(0, false);
+      // Force reflow so the next transform change animates again.
+      void track.offsetWidth;
+      track.classList.remove('no-anim');
+    });
+
     var stop = function () { clearInterval(timer); timer = null; };
     var start = function () {
-      if (reduceMotion || paused || !visible || timer) return;
-      timer = setInterval(function () { go(i + 1); }, 3500);
+      if (timer || document.hidden) return;
+      timer = setInterval(function () { go(i + 1); }, 3200);
     };
-    Array.prototype.forEach.call(dots, function (d, n) {
-      d.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(n); stop(); start(); });
+    Array.prototype.forEach.call(dots, function (d, k) {
+      d.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); go(k); stop(); start(); });
     });
-    box.addEventListener('mouseenter', function () { paused = true; stop(); });
-    box.addEventListener('mouseleave', function () { paused = false; start(); });
-    box.addEventListener('focusin', function () { paused = true; stop(); });
-    box.addEventListener('focusout', function () { paused = false; start(); });
     var sx = null;
     box.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
     box.addEventListener('touchend', function (e) {
       if (sx === null) return;
       var dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) > 40) { go(dx < 0 ? i + 1 : i - 1); stop(); start(); }
+      if (Math.abs(dx) > 40) { go(dx < 0 ? i + 1 : (i === 0 ? n - 1 : i - 1)); stop(); start(); }
       sx = null;
     });
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        visible = entries[0].isIntersecting;
-        if (visible) start(); else stop();
-      }).observe(box);
-    }
     document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
+    markDot(0);
+    render(0, false);
     start();
   });
 

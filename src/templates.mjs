@@ -53,12 +53,12 @@ function slideshow(manifest, lang, apt, opts = {}) {
   const altFor = (k, i) => (i === 0 && apt.imageAlt ? apt.imageAlt[lang] : images[k].alt[lang]);
   if (keys.length < 2) return picture(manifest, keys[0], lang, { ...opts, alt: altFor(keys[0], 0) });
   const g = t[lang].gallery;
-  const slides = keys.map((k, i) => `<div class="slide${i === 0 ? ' is-active' : ''}"${i ? ' aria-hidden="true"' : ''}>${picture(manifest, k, lang, { ...opts, alt: altFor(k, i), loading: i === 0 ? opts.loading : 'lazy', fetchpriority: i === 0 ? opts.fetchpriority : undefined })}</div>`).join('');
+  const slides = keys.map((k, i) => `<div class="slide"${i ? ' aria-hidden="true"' : ''}>${picture(manifest, k, lang, { ...opts, alt: altFor(k, i), loading: i === 0 ? opts.loading : 'eager', fetchpriority: i === 0 ? opts.fetchpriority : undefined })}</div>`).join('');
   // Inside a card the whole media is a link, so dots are decorative spans (no nested interactive elements).
   const dots = keys.map((_, i) => opts.inLink
     ? `<span data-slide="${i}"${i === 0 ? ' aria-current="true"' : ''}></span>`
     : `<button type="button" data-slide="${i}"${i === 0 ? ' aria-current="true"' : ''} aria-label="${g.slide} ${i + 1}"></button>`).join('');
-  return `<div class="slideshow" data-slideshow role="region" aria-roledescription="carousel" aria-label="${esc(apt.name[lang])}">${slides}<div class="slide-dots">${dots}</div></div>`;
+  return `<div class="slideshow" data-slideshow role="region" aria-roledescription="carousel" aria-label="${esc(apt.name[lang])}"><div class="slide-track">${slides}</div><div class="slide-dots">${dots}</div></div>`;
 }
 
 /* ---------- shared blocks ---------- */
